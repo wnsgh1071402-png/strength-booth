@@ -21,7 +21,7 @@ const state = {
 
 function show(id) {
   document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === id));
-  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  window.scrollTo(0, 0);
 }
 
 // ── 진행 상황 임시 저장 (새로고침 대비) ────────────
@@ -94,23 +94,35 @@ function renderQuestion() {
     </button>`).join('');
 
   $('quiz-scale').querySelectorAll('button').forEach((btn) => {
-    btn.addEventListener('click', () => answer(Number(btn.dataset.v)));
+    btn.addEventListener('click', () => answer(Number(btn.dataset.v), btn));
   });
 
   $('btn-prev').disabled = state.index === 0;
 }
 
-function answer(value) {
+// 다음 문항으로 넘어가는 짧은 전환 중에는 입력을 막는다.
+// (막지 않으면 빠르게 두 번 탭했을 때 두 번째 탭이 다음 문항의 답으로 기록된다)
+let advancing = false;
+
+function answer(value, btn) {
+  if (advancing) return;
+  advancing = true;
+
   state.answers[state.index] = value;
   saveProgress();
 
-  if (state.index < state.questions.length - 1) {
-    state.index += 1;
-    // 선택이 눈에 보이도록 아주 짧게 머문 뒤 다음 문항으로
-    setTimeout(renderQuestion, 130);
-  } else {
-    setTimeout(finish, 130);
-  }
+  // 화면 갱신 전에도 선택한 게 보이도록 즉시 표시
+  $('quiz-scale').querySelectorAll('button').forEach((b) => b.classList.toggle('picked', b === btn));
+
+  setTimeout(() => {
+    advancing = false;
+    if (state.index < state.questions.length - 1) {
+      state.index += 1;
+      renderQuestion();
+    } else {
+      finish();
+    }
+  }, 130);
 }
 
 // ── 결과 ───────────────────────────────────────────

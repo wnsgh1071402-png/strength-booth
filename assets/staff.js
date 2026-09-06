@@ -11,6 +11,7 @@ const $ = (id) => document.getElementById(id);
 let rows = [];
 let selectedId = null;
 let unsubscribe = null;
+let watchToken = 0;
 
 // ── PIN 게이트 ─────────────────────────────────────
 
@@ -38,14 +39,23 @@ $('pin-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') check
 // ── 데이터 구독 ────────────────────────────────────
 
 async function watch(dateKey) {
+  // 날짜를 연속으로 바꾸면 구독 요청이 겹칠 수 있다.
+  // 토큰으로 최신 요청만 살려서 오래된 구독이 목록을 덮어쓰지 않게 한다.
+  const token = ++watchToken;
+
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
   rows = [];
   selectedId = null;
   render();
-  unsubscribe = await subscribeResults(dateKey, (list) => {
+
+  const stop = await subscribeResults(dateKey, (list) => {
+    if (token !== watchToken) return;
     rows = list;
     render();
   });
+
+  if (token !== watchToken) { stop(); return; }
+  unsubscribe = stop;
 }
 
 async function start() {
