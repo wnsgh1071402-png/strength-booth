@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFBF3">
+<meta name="description" content="VIA 성격강점을 바탕으로 나의 강점 TOP 3를 찾아보는 청소년 강점검사">
+<title>빛나는 나 발견하기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✨%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 1. 시작 -->
+  <section id="screen-start" class="screen active">
+    <div class="hero">
+      <div class="spark">✨</div>
+      <h1>빛나는 나 발견하기</h1>
+      <p class="sub">누구에게나 반짝이는 강점이 있어.<br>너의 강점 TOP 3를 찾아보자.</p>
+    </div>
+
+    <ul class="facts">
+      <li><span>⏱️</span><span>4~5분이면 끝나. 문항은 24개야.</span></li>
+      <li><span>🙆</span><span>정답도 오답도 없어. 지금의 너를 그대로 고르면 돼.</span></li>
+      <li><span>🔒</span><span>이름·연락처는 물어보지 않아. 완전 익명이야.</span></li>
+      <li><span>💬</span><span>결과가 나오면 상담 선생님이랑 같이 볼 거야.</span></li>
+    </ul>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-begin">시작하기</button>
+    </div>
+  </section>
+
+  <!-- 2. 영역 선택 -->
+  <section id="screen-areas" class="screen">
+    <div class="result-head">
+      <p class="kicker">STEP 1</p>
+      <h2>어떤 이야기를 해볼까?</h2>
+      <p class="muted">가장 궁금한 영역 하나를 골라줘.</p>
+    </div>
+    <div class="area-list" id="area-list"></div>
+    <div class="btn-row">
+      <button class="btn ghost" data-go="screen-start">← 처음으로</button>
+    </div>
+  </section>
+
+  <!-- 3. 검사 -->
+  <section id="screen-quiz" class="screen">
+    <div class="quiz-top">
+      <div class="progress-meta">
+        <span id="quiz-area-name"></span>
+        <span><b id="quiz-no">1</b> / 24</span>
+      </div>
+      <div class="bar"><i id="quiz-bar"></i></div>
+    </div>
+
+    <p class="question" id="quiz-question"></p>
+    <div class="scale" id="quiz-scale"></div>
+
+    <div class="quiz-nav">
+      <button id="btn-prev">← 이전</button>
+      <button id="btn-quit">그만두기</button>
+    </div>
+  </section>
+
+  <!-- 4. 결과 -->
+  <section id="screen-result" class="screen">
+    <div class="result-head">
+      <p class="kicker" id="result-area"></p>
+      <h2>너의 강점 TOP 3</h2>
+    </div>
+
+    <div id="result-cards"></div>
+
+    <details class="rest">
+      <summary>나머지 강점 점수도 볼래?</summary>
+      <div id="result-rest"></div>
+    </details>
+
+    <div class="code-box">
+      <p class="label" id="code-label">상담 선생님께 이 번호를 보여줘</p>
+      <p class="code" id="result-code">----</p>
+      <p class="muted" id="code-help">선생님 화면에 네 결과가 떠 있어</p>
+    </div>
+
+    <div id="result-notice" style="margin-top:14px"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-save">결과 이미지로 저장</button>
+      <button class="btn ghost" id="btn-other">다른 영역도 해볼래</button>
+      <button class="btn ghost" id="btn-again">처음부터 다시하기</button>
+    </div>
+
+    <p class="muted center" style="margin-top:26px">
+      이 검사는 VIA 성격강점 분류를 참고해 만든 부스용 활동이야.<br>진단이 아니라 너의 좋은 점을 찾는 도구야.
+    </p>
+  </section>
+
+</div>
+
+<script type="module" src="assets/participant.js"></script>
+</body>
+</html>

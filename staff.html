@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F4EE">
+<meta name="robots" content="noindex">
+<title>상담자용 · 빛나는 나 발견하기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📋%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body class="staff-body">
+
+<!-- PIN 게이트 -->
+<section id="pin-gate" class="pin-wrap">
+  <div style="font-size:42px">🔐</div>
+  <h1 style="font-size:22px;margin-top:12px">상담자용 화면</h1>
+  <p class="muted" style="margin-top:6px">PIN을 입력해주세요</p>
+  <input id="pin-input" class="pin-input" type="password" inputmode="numeric"
+         autocomplete="off" maxlength="8" placeholder="····">
+  <p id="pin-error" class="muted" style="color:#C0442C;min-height:1.4em;margin-top:8px"></p>
+  <button class="btn" id="pin-submit" style="margin-top:6px">들어가기</button>
+</section>
+
+<!-- 본 화면 -->
+<div id="staff-shell" class="staff-shell">
+
+  <header class="staff-bar">
+    <h1>✨ 빛나는 나 발견하기</h1>
+    <span id="mode-pill" class="pill">연결 확인 중</span>
+    <span class="spacer"></span>
+    <label class="muted" for="date-pick">부스 날짜</label>
+    <input type="date" id="date-pick">
+    <span class="muted" id="count-label">0명</span>
+  </header>
+
+  <main class="staff-main">
+    <aside class="staff-list" id="person-list"></aside>
+
+    <section class="staff-detail">
+      <div class="tabs">
+        <button data-pane="pane-person" class="on">참여자 결과</button>
+        <button data-pane="pane-stats">오늘 집계</button>
+      </div>
+
+      <div id="pane-person" class="pane active">
+        <div class="placeholder" id="person-placeholder">
+          <div style="font-size:36px">👈</div>
+          <p>왼쪽에서 참여자 번호를 선택하세요</p>
+          <p class="muted">참여자가 폰 화면에 보여주는 4자리 번호와 같습니다</p>
+        </div>
+        <div id="person-detail"></div>
+      </div>
+
+      <div id="pane-stats" class="pane">
+        <div class="stat-row" id="stat-row"></div>
+        <h3 style="font-size:17px;margin-bottom:12px">오늘 가장 많이 나온 강점</h3>
+        <div class="tally" id="tally"></div>
+        <h3 style="font-size:17px;margin:26px 0 12px">영역별 참여</h3>
+        <div class="tally" id="area-tally"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="assets/staff.js"></script>
+</body>
+</html>

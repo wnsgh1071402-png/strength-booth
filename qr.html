@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>부스 QR · 빛나는 나 발견하기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔳%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
+<style>
+  .poster {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .poster h1 { font-size: 40px; font-weight: 800; margin-bottom: 8px; }
+  .poster .lead { font-size: 19px; color: var(--ink-soft); margin-bottom: 4px; }
+  #qr {
+    display: inline-block;
+    padding: 22px;
+    background: #fff;
+    border: 3px solid var(--accent);
+    border-radius: 22px;
+    margin: 26px 0 14px;
+    line-height: 0;
+  }
+  #qr img, #qr canvas { width: 320px; height: 320px; image-rendering: pixelated; }
+  .url {
+    font-size: 14px;
+    color: var(--muted);
+    word-break: break-all;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .steps { text-align: left; margin: 30px auto 0; max-width: 420px; }
+  .steps li { font-size: 16px; color: var(--ink-soft); margin-bottom: 8px; }
+  .tools { margin-top: 34px; display: grid; gap: 10px; max-width: 420px; margin-inline: auto; }
+  .tools input {
+    font: inherit; padding: 12px 14px;
+    border: 1.5px solid var(--line); border-radius: 12px; background: #fff;
+  }
+  @media print {
+    .tools, .steps, .no-print { display: none !important; }
+    .poster { padding-top: 60px; }
+    #qr img, #qr canvas { width: 400px; height: 400px; }
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+  <div style="font-size:46px">✨</div>
+  <h1>빛나는 나 발견하기</h1>
+  <p class="lead">누구에게나 반짝이는 강점이 있어</p>
+  <p class="lead" style="font-weight:700;color:var(--accent-deep)">QR을 찍고 4분이면 끝!</p>
+
+  <div id="qr"><p class="muted" style="line-height:1.6;padding:120px 20px">QR 생성 중…</p></div>
+  <p class="url" id="url-text"></p>
+
+  <ol class="steps no-print">
+    <li>이 페이지를 <b>인쇄</b>해서 부스에 붙여두세요.</li>
+    <li>청소년은 폰으로 QR을 찍고 검사를 진행합니다.</li>
+    <li>검사가 끝나면 폰에 <b>4자리 번호</b>가 뜹니다.</li>
+    <li>상담자 태블릿의 <b>staff.html</b>에서 그 번호를 찾아 함께 봅니다.</li>
+  </ol>
+
+  <div class="tools no-print">
+    <label class="muted" for="base" style="text-align:left">참여자용 주소 (자동 입력됨 · 필요하면 수정)</label>
+    <input id="base" type="url" spellcheck="false">
+    <button class="btn" id="btn-print">인쇄하기</button>
+    <a class="btn ghost" id="staff-link" href="staff.html"
+       style="text-decoration:none;text-align:center">상담자용 화면 열기 (북마크해두세요)</a>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function () {
+  var input = document.getElementById('base');
+  var box = document.getElementById('qr');
+  var urlText = document.getElementById('url-text');
+
+  // 현재 배포 주소에서 참여자용 URL을 추론
+  var here = location.href.replace(/\/qr\.html.*$/, '/');
+  input.value = here;
+
+  function render() {
+    var url = input.value.trim();
+    urlText.textContent = url;
+    if (typeof qrcode !== 'function') {
+      box.innerHTML = '<p class="muted" style="padding:100px 20px;line-height:1.6">' +
+        'QR 생성기를 불러오지 못했어요.<br>인터넷 연결을 확인하거나,<br>' +
+        '아래 주소로 QR을 직접 만들어 주세요.</p>';
+      return;
+    }
+    // 오류 정정 레벨 M, 자동 타입
+    var qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    box.innerHTML = qr.createImgTag(8, 0);
+  }
+
+  input.addEventListener('input', render);
+  document.getElementById('btn-print').addEventListener('click', function () { window.print(); });
+  render();
+})();
+</script>
+</body>
+</html>
