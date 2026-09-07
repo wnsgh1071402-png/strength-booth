@@ -10,12 +10,12 @@
 // 이 키들은 공개돼도 되는 값입니다. 실제 보안은 Firestore 보안 규칙이 담당합니다.
 
 export const FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: ''
+  apiKey: 'AIzaSyC6eR4-m47x4yz47v4Jdwzv_f_dsHCjZRg',
+  authDomain: 'light-7a28b.firebaseapp.com',
+  projectId: 'light-7a28b',
+  storageBucket: 'light-7a28b.firebasestorage.app',
+  messagingSenderId: '860382941631',
+  appId: '1:860382941631:web:0b7e5ff8b13c27ecbc110a'
 };
 
 // 상담자용 화면 진입 PIN. 부스 운영자만 아는 값으로 바꿔서 쓰세요.
