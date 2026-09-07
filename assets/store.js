@@ -7,6 +7,17 @@ import { FIREBASE_CONFIG } from './firebase-config.js';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1/';
 const LOCAL_PREFIX = 'booth:results:';
+const SYNC_TIMEOUT = 8000;
+
+function withTimeout(promise, ms, label) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(label + ' 시간 초과')), ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
 
 let mode = 'local';      // 'cloud' | 'local'
 let fs = null;           // firestore 모듈
@@ -82,13 +93,22 @@ export async function submitResult(record) {
 
   if (mode === 'cloud') {
     try {
-      await fs.addDoc(fs.collection(db, 'booths', dateKey, 'results'), {
-        code: record.code,
-        areaId: record.areaId,
-        scores: record.scores,
-        top3: record.top3,
-        createdAt: fs.serverTimestamp()
-      });
+      await withTimeout(
+        fs.addDoc(fs.collection(db, 'booths', dateKey, 'results'), {
+          code: record.code,
+          areaId: record.areaId,
+          scores: record.scores,
+          top3: record.top3,
+          createdAt: fs.serverTimestamp()
+        }),
+        SYNC_TIMEOUT, '전송'
+      );
+
+      // addDoc은 서버에 닿지 못해도 로컬 큐에 넣고 resolve될 수 있다.
+      // (DB 미생성·오프라인 등) 실제로 서버가 받았는지는 이걸로 확인해야
+      // "선생님 화면에 떴다"는 안내를 거짓으로 하지 않는다.
+      await withTimeout(fs.waitForPendingWrites(db), SYNC_TIMEOUT, '서버 확인');
+
       return { ok: true, mode };
     } catch (err) {
       console.warn('[store] 전송 실패 — 로컬에만 남깁니다.', err);
@@ -107,9 +127,10 @@ export async function submitResult(record) {
 
 /**
  * 특정 날짜 결과 구독. 최신순 배열을 콜백으로 넘긴다.
+ * @param onStatus 연결 상태 알림. 'live'(서버 응답 수신) | 'local' | 'error'
  * @returns {Promise<Function>} 구독 해제 함수
  */
-export async function subscribeResults(dateKey, onChange) {
+export async function subscribeResults(dateKey, onChange, onStatus = () => {}) {
   await initStore();
 
   if (mode === 'cloud') {
@@ -120,6 +141,9 @@ export async function subscribeResults(dateKey, onChange) {
     return fs.onSnapshot(
       q,
       (snap) => {
+        // 서버에서 스냅샷이 실제로 온 시점에만 '연결됨'으로 본다.
+        // SDK 초기화 성공만으로 판단하면 DB가 없어도 연결된 것처럼 보인다.
+        onStatus(snap.metadata.fromCache ? 'cache' : 'live');
         onChange(snap.docs.map((d) => {
           const data = d.data();
           return {
@@ -131,10 +155,13 @@ export async function subscribeResults(dateKey, onChange) {
       },
       (err) => {
         console.warn('[store] 구독 오류', err);
+        onStatus('error', err);
         onChange(localRead(dateKey).slice().reverse());
       }
     );
   }
+
+  onStatus('local');
 
   // 로컬 모드: 같은 브라우저의 다른 탭 변경을 storage 이벤트로 감지 + 주기 확인
   const emit = () => onChange(localRead(dateKey).slice().reverse());

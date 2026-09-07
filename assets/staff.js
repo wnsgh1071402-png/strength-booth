@@ -48,11 +48,18 @@ async function watch(dateKey) {
   selectedId = null;
   render();
 
-  const stop = await subscribeResults(dateKey, (list) => {
-    if (token !== watchToken) return;
-    rows = list;
-    render();
-  });
+  const stop = await subscribeResults(
+    dateKey,
+    (list) => {
+      if (token !== watchToken) return;
+      rows = list;
+      render();
+    },
+    (status, err) => {
+      if (token !== watchToken) return;
+      setPill(status, err);
+    }
+  );
 
   if (token !== watchToken) { stop(); return; }
   unsubscribe = stop;
@@ -72,16 +79,34 @@ async function start() {
   });
 
   await initStore();
-  const pill = $('mode-pill');
-  if (getMode() === 'cloud') {
-    pill.textContent = '실시간 연결됨';
-    pill.className = 'pill';
-  } else {
-    pill.textContent = '로컬 모드 (이 기기만)';
-    pill.className = 'pill off';
-  }
+  if (getMode() !== 'cloud') setPill('local');
 
   watch(today);
+}
+
+/**
+ * 연결 상태 표시.
+ * SDK 초기화 성공만으로 '연결됨'이라고 하면 DB가 없거나 규칙이 막혀 있어도
+ * 연결된 것처럼 보인다. 실제 서버 스냅샷을 받은 뒤에만 초록으로 바꾼다.
+ */
+function setPill(status, err) {
+  const pill = $('mode-pill');
+  if (status === 'live') {
+    pill.textContent = '실시간 연결됨';
+    pill.className = 'pill';
+    pill.title = '';
+  } else if (status === 'cache') {
+    pill.textContent = '서버 응답 대기 중';
+    pill.className = 'pill off';
+  } else if (status === 'local') {
+    pill.textContent = '로컬 모드 (이 기기만)';
+    pill.className = 'pill off';
+  } else {
+    pill.textContent = '연결 실패 — 폰 결과가 안 넘어옵니다';
+    pill.className = 'pill off';
+    pill.title = err ? String(err.code || err.message || err) : '';
+    console.warn('[staff] 연결 실패', err);
+  }
 }
 
 // ── 렌더 ───────────────────────────────────────────
