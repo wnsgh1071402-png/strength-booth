@@ -48,6 +48,16 @@ async function watch(dateKey) {
   selectedId = null;
   render();
 
+  // DB가 없거나 프로젝트 설정이 틀리면 onSnapshot이 오류도 내지 않고
+  // 무한 재시도만 한다. 그러면 배지가 '확인 중'에 멈춰 상담자가 원인을
+  // 알 수 없으므로, 응답이 없으면 시간을 재서 알려준다.
+  let answered = false;
+  const watchdog = setTimeout(() => {
+    if (!answered && token === watchToken) {
+      setPill('error', new Error('서버 응답 없음 — Firestore 데이터베이스 생성/보안 규칙을 확인하세요'));
+    }
+  }, 10000);
+
   const stop = await subscribeResults(
     dateKey,
     (list) => {
@@ -57,6 +67,8 @@ async function watch(dateKey) {
     },
     (status, err) => {
       if (token !== watchToken) return;
+      // 'cache'는 아직 서버에 닿지 못한 상태이므로 감시를 유지한다
+      if (status !== 'cache') { answered = true; clearTimeout(watchdog); }
       setPill(status, err);
     }
   );

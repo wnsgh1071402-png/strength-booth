@@ -135,11 +135,16 @@ async function finish() {
   renderResult(record);
   show('screen-result');
 
+  // 서버 확인에 몇 초 걸린다. 그동안 "선생님 화면에 떴다"고 단정하지 않는다.
+  $('code-help').textContent = '';
+  $('result-notice').innerHTML = '<div class="notice">결과를 선생님 화면으로 보내는 중…</div>';
+
   const res = await submitResult(record);
   const notice = $('result-notice');
 
   if (res.ok && res.mode === 'cloud') {
     notice.innerHTML = '';
+    $('code-help').textContent = '선생님 화면에 네 결과가 떠 있어';
   } else if (res.mode === 'local') {
     $('code-label').textContent = '내 결과 번호';
     $('code-help').textContent = '';
