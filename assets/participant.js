@@ -137,21 +137,21 @@ async function finish() {
 
   // 서버 확인에 몇 초 걸린다. 그동안 "선생님 화면에 떴다"고 단정하지 않는다.
   $('code-help').textContent = '';
-  $('result-notice').innerHTML = '<div class="notice">결과를 선생님 화면으로 보내는 중…</div>';
+  $('result-notice').innerHTML = '<div class="notice">결과를 선생님 화면으로 보내는 중입니다…</div>';
 
   const res = await submitResult(record);
   const notice = $('result-notice');
 
   if (res.ok && res.mode === 'cloud') {
     notice.innerHTML = '';
-    $('code-help').textContent = '선생님 화면에 네 결과가 떠 있어';
+    $('code-help').textContent = '선생님 화면에 결과가 표시되었습니다';
   } else if (res.mode === 'local') {
     $('code-label').textContent = '내 결과 번호';
     $('code-help').textContent = '';
-    notice.innerHTML = `<div class="notice">이 기기에만 저장됐어. 선생님께 이 화면을 그대로 보여주면 돼.</div>`;
+    notice.innerHTML = `<div class="notice">이 기기에만 저장되었습니다. 선생님께 이 화면을 그대로 보여주십시오.</div>`;
   } else {
     $('code-help').textContent = '';
-    notice.innerHTML = `<div class="notice warn">네트워크가 불안정해서 선생님 화면으로 못 보냈어.<br>이 화면을 직접 보여주면 돼! 결과는 그대로야.</div>`;
+    notice.innerHTML = `<div class="notice warn">네트워크가 불안정해 선생님 화면으로 전송하지 못했습니다.<br>이 화면을 직접 보여주십시오. 결과는 그대로입니다.</div>`;
   }
 }
 
@@ -294,7 +294,7 @@ function saveImage() {
 // iOS Safari 등 download 속성이 막히는 환경 대비
 function fallbackSave() {
   $('result-notice').innerHTML =
-    `<div class="notice">이 기기에선 자동 저장이 안 돼. 화면을 캡처해서 저장해줘!</div>`;
+    `<div class="notice">이 기기에서는 자동 저장이 되지 않습니다. 화면을 캡처해 저장해 주십시오.</div>`;
 }
 
 // ── 초기화 ─────────────────────────────────────────
@@ -306,8 +306,8 @@ function reset(toAreas) {
   state.answers = [];
   state.index = 0;
   $('result-notice').innerHTML = '';
-  $('code-label').textContent = '상담 선생님께 이 번호를 보여줘';
-  $('code-help').textContent = '선생님 화면에 네 결과가 떠 있어';
+  $('code-label').textContent = '상담 선생님께 이 번호를 보여주십시오';
+  $('code-help').textContent = '선생님 화면에 결과가 표시되었습니다';
   show(toAreas ? 'screen-areas' : 'screen-start');
 }
 
@@ -319,7 +319,7 @@ function init() {
     if (state.index > 0) { state.index -= 1; renderQuestion(); saveProgress(); }
   });
   $('btn-quit').addEventListener('click', () => {
-    if (confirm('검사를 그만둘까? 지금까지 고른 답은 사라져.')) reset(true);
+    if (confirm('검사를 그만두시겠습니까? 지금까지 고른 답은 사라집니다.')) reset(true);
   });
   $('btn-again').addEventListener('click', () => reset(false));
   $('btn-other').addEventListener('click', () => reset(true));
