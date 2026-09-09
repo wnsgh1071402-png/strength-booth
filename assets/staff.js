@@ -1,6 +1,6 @@
 // 상담자용 앱 — 실시간 참여자 목록 · 상담 가이드 · 당일 집계
 
-import { getArea, getStrength, SCALE } from './data.js';
+import { getArea, getStrength, findStrength, SCALE } from './data.js';
 import { rankStrengths, explainAnswers, MAX_SCORE, MIN_SCORE } from './scoring.js';
 import { subscribeResults, todayKey, initStore, getMode } from './store.js';
 import { STAFF_PIN } from './firebase-config.js';
@@ -189,35 +189,66 @@ function renderPerson() {
     const s = getStrength(row.areaId, id);
     const score = row.scores[id];
     const rank = ranked.findIndex((r) => r.id === id) + 1;
+    const it = s.interpret;
 
-    // 높게 답한 문항이 위로 오게. 그래야 이야깃거리가 먼저 보인다.
+    // 높게 답한 문항이 위로 오게. 강점 안에서 어디가 두드러지는지 한눈에 보인다.
     const answered = (byStrength.get(id) || []).slice().sort((a, b) => b.value - a.value);
-    const highest = answered.length ? answered[0].value : 0;
 
-    const itemRows = answered.map((q, n) => {
+    const itemRows = answered.map((q) => {
       const label = SCALE.find((sc) => sc.value === q.value);
-      // 가장 높게 답한 문항에만 후속 질문을 붙인다 (최대 2개)
-      const showProbe = q.value >= 4 && q.value === highest && n < 2;
       return `
         <li class="ans ${q.value >= 4 ? 'high' : q.value <= 2 ? 'low' : ''}">
           <span class="v">${label ? label.label : q.value}</span>
           <span class="q">${s.items[q.itemIndex]}</span>
-          ${showProbe ? `<span class="probe">${s.probes[q.itemIndex]}</span>` : ''}
         </li>`;
     }).join('');
 
-    const fallback = `<p class="muted" style="margin-top:10px">
-      이 결과에는 문항별 응답이 없습니다(구버전 기록). 아래 질문으로 시작해보세요.<br>
-      ${s.probes.map((p) => `<span class="probe" style="margin-top:6px">${p}</span>`).join('')}
-    </p>`;
+    // 같은 강점 안에서 응답이 갈리면 그 자체가 해석거리다
+    const inner = innerPattern(answered, s);
+
+    // 함께 나타나는 강점 중 이 학생에게도 상위로 나온 것을 표시
+    const pairs = it.pairs.map((pid) => {
+      const found = findStrength(pid);
+      if (!found) return null;
+      const alsoTop = top.includes(pid);
+      const sameArea = found.area.id === row.areaId;
+      return `<span class="pair ${alsoTop ? 'on' : ''}">${found.strength.emoji} ${found.strength.name}` +
+             `${sameArea ? '' : ` <em>${found.area.name}</em>`}${alsoTop ? ' · 이 학생도 상위' : ''}</span>`;
+    }).filter(Boolean).join('');
 
     return `
       <div class="guide-card">
         <span class="tag">TOP ${i + 1}</span>
         <h3>${s.emoji} ${s.name}</h3>
-        <div class="sc-line">${s.via} · ${score} / ${MAX_SCORE}점 · 6개 중 ${rank}위</div>
-        <p class="desc">${s.short}</p>
-        ${answered.length ? `<ul class="answers">${itemRows}</ul>` : fallback}
+        <div class="sc-line">${s.via} · 덕목 ${it.virtue} · ${score} / ${MAX_SCORE}점 · 6개 중 ${rank}위</div>
+
+        <div class="interp">
+          <div class="ih">이 강점이 재는 것</div>
+          <p>${it.core}</p>
+        </div>
+
+        <div class="interp two">
+          <div>
+            <div class="ih ok">잘 쓰이고 있을 때</div>
+            <p>${it.optimal}</p>
+          </div>
+          <div>
+            <div class="ih warn">균형이 무너지면</div>
+            <p><b>지나칠 때</b> ${it.overuse}<br><b>못 쓸 때</b> ${it.underuse}</p>
+          </div>
+        </div>
+
+        ${answered.length ? `
+          <div class="interp">
+            <div class="ih">이 학생의 응답</div>
+            <ul class="answers">${itemRows}</ul>
+            ${inner ? `<p class="inner-note">${inner}</p>` : ''}
+          </div>` : `<p class="muted" style="margin-top:12px">이 기록에는 문항별 응답이 없습니다(구버전).</p>`}
+
+        <div class="interp">
+          <div class="ih">함께 나타나는 강점</div>
+          <div class="pairs">${pairs}</div>
+        </div>
       </div>`;
   }).join('');
 
@@ -240,6 +271,25 @@ function renderPerson() {
     ${cards}
     <h3 style="font-size:16px;margin:22px 0 12px">강점 6개 전체 점수</h3>
     <div class="tally">${all}</div>`;
+}
+
+/**
+ * 한 강점 안에서 응답이 갈리는지 본다. 4문항이 모두 같은 강점을 재는데도
+ * 답이 벌어지면 그 강점의 어느 면은 자기 것으로 느끼고 어느 면은 아니라는
+ * 뜻이므로, 합산 점수만 볼 때는 사라지는 정보다.
+ */
+function innerPattern(answered, s) {
+  if (answered.length < 4) return '';
+  const hi = answered[0];
+  const lo = answered[answered.length - 1];
+  if (hi.value - lo.value < 2) {
+    return hi.value >= 4
+      ? '네 문항에 고르게 높이 답했습니다. 이 강점을 전반적으로 자기 것으로 느끼고 있습니다.'
+      : '네 문항 응답이 고릅니다. 특별히 두드러지는 면 없이 비슷하게 답했습니다.';
+  }
+  return `같은 강점인데 "${s.items[hi.itemIndex]}"에는 높게, ` +
+         `"${s.items[lo.itemIndex]}"에는 낮게 답했습니다. ` +
+         '강점 안에서도 편차가 있다는 뜻이라, 어느 쪽이 실제 모습에 가까운지 확인해볼 만합니다.';
 }
 
 /** 목적격 조사 — 앞말 받침에 따라 을/를 */
