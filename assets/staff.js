@@ -1,7 +1,7 @@
 // 상담자용 앱 — 실시간 참여자 목록 · 상담 가이드 · 당일 집계
 
-import { getArea, getStrength } from './data.js';
-import { rankStrengths, MAX_SCORE } from './scoring.js';
+import { getArea, getStrength, SCALE } from './data.js';
+import { rankStrengths, explainAnswers, MAX_SCORE, MIN_SCORE } from './scoring.js';
 import { subscribeResults, todayKey, initStore, getMode } from './store.js';
 import { STAFF_PIN } from './firebase-config.js';
 
@@ -178,16 +178,46 @@ function renderPerson() {
   const ranked = rankStrengths(row.areaId, row.scores);
   const top = row.top3 || ranked.slice(0, 3).map((r) => r.id);
 
+  // 문항별 응답을 강점별로 모아둔다 (옛 기록은 answers가 없어 빈 배열)
+  const byStrength = new Map();
+  explainAnswers(row.areaId, row.answers).forEach((q) => {
+    if (!byStrength.has(q.strengthId)) byStrength.set(q.strengthId, []);
+    byStrength.get(q.strengthId).push(q);
+  });
+
   const cards = top.map((id, i) => {
     const s = getStrength(row.areaId, id);
     const score = row.scores[id];
+    const rank = ranked.findIndex((r) => r.id === id) + 1;
+
+    // 높게 답한 문항이 위로 오게. 그래야 이야깃거리가 먼저 보인다.
+    const answered = (byStrength.get(id) || []).slice().sort((a, b) => b.value - a.value);
+    const highest = answered.length ? answered[0].value : 0;
+
+    const itemRows = answered.map((q, n) => {
+      const label = SCALE.find((sc) => sc.value === q.value);
+      // 가장 높게 답한 문항에만 후속 질문을 붙인다 (최대 2개)
+      const showProbe = q.value >= 4 && q.value === highest && n < 2;
+      return `
+        <li class="ans ${q.value >= 4 ? 'high' : q.value <= 2 ? 'low' : ''}">
+          <span class="v">${label ? label.label : q.value}</span>
+          <span class="q">${s.items[q.itemIndex]}</span>
+          ${showProbe ? `<span class="probe">${s.probes[q.itemIndex]}</span>` : ''}
+        </li>`;
+    }).join('');
+
+    const fallback = `<p class="muted" style="margin-top:10px">
+      이 결과에는 문항별 응답이 없습니다(구버전 기록). 아래 질문으로 시작해보세요.<br>
+      ${s.probes.map((p) => `<span class="probe" style="margin-top:6px">${p}</span>`).join('')}
+    </p>`;
+
     return `
       <div class="guide-card">
         <span class="tag">TOP ${i + 1}</span>
         <h3>${s.emoji} ${s.name}</h3>
-        <div class="sc-line">${s.via} · ${score} / ${MAX_SCORE}점</div>
+        <div class="sc-line">${s.via} · ${score} / ${MAX_SCORE}점 · 6개 중 ${rank}위</div>
         <p class="desc">${s.short}</p>
-        <ul>${s.counselor.map((c) => `<li>${c}</li>`).join('')}</ul>
+        ${answered.length ? `<ul class="answers">${itemRows}</ul>` : fallback}
       </div>`;
   }).join('');
 
@@ -206,9 +236,50 @@ function renderPerson() {
       <span style="font-size:30px;font-weight:800;color:var(--accent-deep)">${row.code ?? '----'}</span>
       <span class="muted">${area.emoji} ${area.name} · ${timeOf(row.createdAtLocal)}</span>
     </div>
+    ${readPattern(row, ranked, area)}
     ${cards}
     <h3 style="font-size:16px;margin:22px 0 12px">강점 6개 전체 점수</h3>
     <div class="tally">${all}</div>`;
+}
+
+/** 목적격 조사 — 앞말 받침에 따라 을/를 */
+function objectParticle(word) {
+  const code = word.charCodeAt(word.length - 1);
+  if (code < 0xAC00 || code > 0xD7A3) return '을(를)';
+  return (code - 0xAC00) % 28 === 0 ? '를' : '을';
+}
+
+/**
+ * 응답 분포에서만 읽히는 것들. 학생의 성격·배경을 추측하지 않고,
+ * 이 결과가 무엇을 말해주고 무엇을 말해주지 않는지만 짚는다.
+ */
+function readPattern(row, ranked, area) {
+  const values = ranked.map((r) => r.score);
+  const hi = values[0];
+  const lo = values[values.length - 1];
+  const spread = hi - lo;
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+
+  const notes = [];
+
+  if (spread >= 8) {
+    notes.push(`1위 ${hi}점과 6위 ${lo}점의 차이가 ${spread}점으로 뚜렷합니다. 순위에 본인도 동의하는지 물어보기 좋은 결과입니다.`);
+  } else if (spread <= 3) {
+    notes.push(`6개 강점이 ${spread}점 차이로 고릅니다. 순위를 강조하기보다 "이 중에 어떤 게 제일 너 같아?"라고 직접 물어보세요.`);
+  }
+
+  if (mean >= MAX_SCORE - 4) {
+    notes.push(`전체 평균 ${mean.toFixed(1)}점으로 전반적으로 높게 응답했습니다. 점수 차이가 작을 수 있으니 숫자보다 이야기에 무게를 두세요.`);
+  } else if (mean <= MIN_SCORE + 4) {
+    notes.push(`전체 평균 ${mean.toFixed(1)}점으로 전반적으로 낮게 응답했습니다. 낮은 점수를 부족함으로 읽지 말고, 그중 높게 답한 문항부터 짚어주세요.`);
+  }
+
+  notes.push(`4개 영역 중 "${area.name}"${objectParticle(area.name)} 골랐습니다. 그 선택 자체를 물어보면 요즘 관심사가 나옵니다.`);
+
+  return `<div class="pattern">
+    <div class="pattern-h">이 결과에서 읽을 수 있는 것</div>
+    <ul>${notes.map((n) => `<li>${n}</li>`).join('')}</ul>
+  </div>`;
 }
 
 function renderStats() {

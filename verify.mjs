@@ -14,7 +14,8 @@ for (const a of AREAS) {
   ok(!!a.emoji && !!a.tagline, `${a.name}: emoji/tagline`);
   for (const s of a.strengths) {
     ok(s.items.length === 4, `${a.name}/${s.name}: 문항 4개 (실제 ${s.items.length})`);
-    ok(s.counselor.length >= 3, `${a.name}/${s.name}: 상담가이드 3개+ (실제 ${s.counselor.length})`);
+    ok(s.probes.length === 4, `${a.name}/${s.name}: 후속질문 4개 (실제 ${s.probes.length})`);
+    s.probes.forEach((q, i) => ok(typeof q === 'string' && q.length > 0, `${a.name}/${s.name}: probes[${i}] 비어 있음`));
     for (const f of ['id', 'name', 'emoji', 'via', 'short', 'result', 'action']) {
       ok(typeof s[f] === 'string' && s[f].length > 0, `${a.name}/${s.name}: ${f} 누락`);
     }
@@ -23,7 +24,10 @@ for (const a of AREAS) {
     s.items.forEach((t) => items.push(t));
   }
 }
-console.log(`  강점 ${ids.length}개 / 문항 ${items.length}개 / 상담가이드 ${AREAS.flatMap(a => a.strengths).length}세트`);
+const probes = AREAS.flatMap(a => a.strengths).flatMap(s => s.probes);
+console.log(`  강점 ${ids.length}개 / 문항 ${items.length}개 / 후속질문 ${probes.length}개`);
+ok(probes.length === 96, '후속질문 96개');
+ok(new Set(probes).size === probes.length, `후속질문 중복 (고유 ${new Set(probes).size})`);
 ok(ids.length === 24, 'VIA 24개 강점');
 ok(items.length === 96, '총 96문항');
 ok(new Set(ids).size === 24, `강점 id 중복 (고유 ${new Set(ids).size})`);

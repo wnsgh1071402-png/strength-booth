@@ -99,6 +99,7 @@ export async function submitResult(record) {
           areaId: record.areaId,
           scores: record.scores,
           top3: record.top3,
+          answers: record.answers,
           createdAt: fs.serverTimestamp()
         }),
         SYNC_TIMEOUT, '전송'

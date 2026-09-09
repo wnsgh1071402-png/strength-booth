@@ -91,7 +91,12 @@ export function makeCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
-/** 제출 레코드 생성 */
+/**
+ * 제출 레코드 생성.
+ * answers는 출제 순서(buildQuestions)대로의 1~5 배열이다. 상담자 화면이
+ * "이 문항에 이렇게 답했다"를 보여주려면 합산 점수만으로는 부족해서 함께 남긴다.
+ * 순서는 고정 셔플이라 buildQuestions로 언제든 문항과 다시 맞출 수 있다.
+ */
 export function buildRecord(areaId, answers) {
   const scores = scoreAnswers(areaId, answers);
   const top = pickTop(areaId, scores);
@@ -100,6 +105,18 @@ export function buildRecord(areaId, answers) {
     areaId,
     scores,
     top3: top.slice(0, 3).map((t) => t.id),
+    answers: answers.map((v) => Number(v) || 0),
     createdAtLocal: Date.now()
   };
+}
+
+/**
+ * 답안 배열을 문항별로 되돌린다. 상담자 화면 전용.
+ * 데이터가 바뀌어 길이가 안 맞으면 빈 배열을 돌려준다(옛 기록 대비).
+ */
+export function explainAnswers(areaId, answers) {
+  if (!Array.isArray(answers)) return [];
+  const questions = buildQuestions(areaId);
+  if (answers.length !== questions.length) return [];
+  return questions.map((q, i) => ({ ...q, value: Number(answers[i]) || 0 }));
 }
