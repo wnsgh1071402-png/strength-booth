@@ -222,33 +222,50 @@ function renderPerson() {
         <h3>${s.emoji} ${s.name}</h3>
         <div class="sc-line">${s.via} · 덕목 ${it.virtue} · ${score} / ${MAX_SCORE}점 · 6개 중 ${rank}위</div>
 
+        <div class="script">
+          <div class="script-h">이렇게 말해주세요</div>
+          ${buildScript(s, rank, answered).map((line) => `<p>${line}</p>`).join('')}
+        </div>
+
         <div class="interp">
-          <div class="ih">이 강점이 재는 것</div>
-          <p>${it.core}</p>
-        </div>
-
-        <div class="interp two">
-          <div>
-            <div class="ih ok">잘 쓰이고 있을 때</div>
-            <p>${it.optimal}</p>
-          </div>
-          <div>
-            <div class="ih warn">균형이 무너지면</div>
-            <p><b>지나칠 때</b> ${it.overuse}<br><b>못 쓸 때</b> ${it.underuse}</p>
+          <div class="ih">학생 폰에 뜬 결과 — 같이 보세요</div>
+          <div class="phone-echo">
+            <p>${s.result}</p>
+            <p class="echo-action"><b>살리는 법 ·</b> ${s.action}</p>
           </div>
         </div>
 
-        ${answered.length ? `
+        <details class="bg">
+          <summary>배경 — VIA 해석과 응답 내역</summary>
+
           <div class="interp">
-            <div class="ih">이 학생의 응답</div>
-            <ul class="answers">${itemRows}</ul>
-            ${inner ? `<p class="inner-note">${inner}</p>` : ''}
-          </div>` : `<p class="muted" style="margin-top:12px">이 기록에는 문항별 응답이 없습니다(구버전).</p>`}
+            <div class="ih">이 강점이 재는 것</div>
+            <p>${it.core}</p>
+          </div>
 
-        <div class="interp">
-          <div class="ih">함께 나타나는 강점</div>
-          <div class="pairs">${pairs}</div>
-        </div>
+          <div class="interp two">
+            <div>
+              <div class="ih ok">잘 쓰이고 있을 때</div>
+              <p>${it.optimal}</p>
+            </div>
+            <div>
+              <div class="ih warn">균형이 무너지면</div>
+              <p><b>지나칠 때</b> ${it.overuse}<br><b>못 쓸 때</b> ${it.underuse}</p>
+            </div>
+          </div>
+
+          ${answered.length ? `
+            <div class="interp">
+              <div class="ih">문항별 응답</div>
+              <ul class="answers">${itemRows}</ul>
+              ${inner ? `<p class="inner-note">${inner}</p>` : ''}
+            </div>` : `<p class="muted" style="margin-top:12px">이 기록에는 문항별 응답이 없습니다(구버전).</p>`}
+
+          <div class="interp">
+            <div class="ih">함께 나타나는 강점</div>
+            <div class="pairs">${pairs}</div>
+          </div>
+        </details>
       </div>`;
   }).join('');
 
@@ -271,6 +288,72 @@ function renderPerson() {
     ${cards}
     <h3 style="font-size:16px;margin:22px 0 12px">강점 6개 전체 점수</h3>
     <div class="tally">${all}</div>`;
+}
+
+/**
+ * 상담자가 학생에게 소리 내어 읽을 대본.
+ * 고정 문구가 아니라 이 학생이 실제로 고른 응답을 문장에 끼워 넣는다.
+ * 그래야 "네가 이렇게 답했잖아"로 이어지는 말이 된다.
+ */
+function buildScript(s, rank, answered) {
+  const name = s.name;
+  const lines = [];
+
+  const opener = rank === 1
+    ? `결과 보니까 6개 중에 "${name}"${subjectParticle(name)} 제일 높게 나왔어요.`
+    : rank === 2
+      ? `그다음으로 높은 건 "${name}"${copula(name)}.`
+      : `"${name}"도 상위로 나왔어요.`;
+
+  if (answered.length) {
+    const hi = answered[0];
+    const lo = answered[answered.length - 1];
+    const hiLabel = labelOf(hi.value);
+    lines.push(`${opener} 특히 ${quoteItem(s.items[hi.itemIndex])}에 '${hiLabel}'${objectParticle(hiLabel)} 골랐더라고요.`);
+    lines.push(s.interpret.say);
+
+    if (hi.value - lo.value >= 2) {
+      const loLabel = labelOf(lo.value);
+      lines.push(
+        `그런데 ${quoteItem(s.items[lo.itemIndex])}에는 '${loLabel}'${objectParticle(loLabel)} 골랐네요. ` +
+        '그럴 수 있어요 — 같은 강점 안에서도 잘 드러나는 면이 있고 아직 아닌 면이 있거든요.'
+      );
+    }
+  } else {
+    lines.push(opener);
+    lines.push(s.interpret.say);
+  }
+
+  lines.push('폰에 뜬 "살리는 법"도 같이 읽어보면 좋아요.');
+  return lines;
+}
+
+function labelOf(v) {
+  const found = SCALE.find((sc) => sc.value === v);
+  return found ? found.label : String(v);
+}
+
+/**
+ * 대본에 문항을 끼워 넣는다.
+ * 문항 자체에 따옴표가 들어있는 것이 있어서(예: "다 같이" 하는 일이…)
+ * 따옴표로 감싸면 겹친다. 밑줄 강조로 구분하고 끝 마침표는 뺀다.
+ */
+function quoteItem(text) {
+  return `<em class="qi">${text.replace(/\.$/, '')}</em>`;
+}
+
+/** 주격 조사 이/가 */
+function subjectParticle(word) {
+  const code = word.charCodeAt(word.length - 1);
+  if (code < 0xAC00 || code > 0xD7A3) return '이(가)';
+  return (code - 0xAC00) % 28 === 0 ? '가' : '이';
+}
+
+/** 서술격 조사 이에요/예요 */
+function copula(word) {
+  const code = word.charCodeAt(word.length - 1);
+  if (code < 0xAC00 || code > 0xD7A3) return '이에요';
+  return (code - 0xAC00) % 28 === 0 ? '예요' : '이에요';
 }
 
 /**
