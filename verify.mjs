@@ -8,7 +8,7 @@ const ok = (cond, msg) => { if (!cond) { console.log('  FAIL: ' + msg); fail++; 
 console.log('=== 1. 데이터 구조 ===');
 ok(AREAS.length === 4, `영역 4개 (실제 ${AREAS.length})`);
 
-const ids = [], vias = [], items = [], virtues = [];
+const ids = [], vias = [], items = [], virtues = [], traits = [];
 for (const a of AREAS) {
   ok(a.strengths.length === 6, `${a.name}: 강점 6개 (실제 ${a.strengths.length})`);
   ok(!!a.emoji && !!a.tagline, `${a.name}: emoji/tagline`);
@@ -20,6 +20,18 @@ for (const a of AREAS) {
       ok(typeof it?.[f] === 'string' && it[f].length > 0, `${a.name}/${s.name}: interpret.${f} 누락`);
     }
     ok(Array.isArray(it?.pairs) && it.pairs.length === 3, `${a.name}/${s.name}: pairs 3개`);
+    ok(Array.isArray(it?.traits) && it.traits.length === 4, `${a.name}/${s.name}: traits 4개`);
+    ok(typeof it?.adds === 'string' && it.adds.length > 0, `${a.name}/${s.name}: adds 누락`);
+    const mt = it?.match;
+    ok(!!mt, `${a.name}/${s.name}: match 누락`);
+    if (mt) {
+      ok(!!findStrength(mt.friend), `${a.name}/${s.name}: match.friend '${mt.friend}' 없음`);
+      ok(!!findStrength(mt.partner), `${a.name}/${s.name}: match.partner '${mt.partner}' 없음`);
+      ok(mt.friend !== s.id && mt.partner !== s.id, `${a.name}/${s.name}: 자기 자신과 매칭됨`);
+      ok(mt.friend !== mt.partner, `${a.name}/${s.name}: friend와 partner가 같음`);
+      ok(mt.friendWhy?.length > 0 && mt.partnerWhy?.length > 0, `${a.name}/${s.name}: 궁합 설명 누락`);
+      traits.push(...it.traits);
+    }
     it?.pairs.forEach((pid) => {
       ok(!!findStrength(pid), `${a.name}/${s.name}: pairs의 '${pid}'를 찾을 수 없음`);
       ok(pid !== s.id, `${a.name}/${s.name}: pairs에 자기 자신 포함`);
@@ -36,6 +48,8 @@ for (const a of AREAS) {
 const vset = [...new Set(virtues)].sort();
 console.log(`  강점 ${ids.length}개 / 문항 ${items.length}개 / 해석 ${virtues.length}세트`);
 console.log('  덕목:', vset.join(' · '));
+ok(traits.length === 96, `유형 특징 96개 (실제 ${traits.length})`);
+ok(new Set(traits).size === 96, `유형 특징 중복 (고유 ${new Set(traits).size})`);
 ok(vset.length === 6, `VIA 6덕목 (실제 ${vset.length}개: ${vset})`);
 const expect = { 지혜: 5, 용기: 4, 인간애: 3, 정의: 3, 절제: 4, 초월: 5 };
 Object.entries(expect).forEach(([v, n]) => {

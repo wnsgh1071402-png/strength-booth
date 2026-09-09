@@ -291,6 +291,90 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font-variant-numeric: tabular-nums;
 }
 
+/* 결과 화면 — 유형 해석 / 잘 맞는 유형 */
+details.deep {
+  margin-top: 14px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+details.deep > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+details.deep > summary::-webkit-details-marker { display: none; }
+details.deep > summary::after { content: ' ▾'; color: var(--accent-deep); }
+details.deep[open] > summary::after { content: ' ▴'; }
+.deep-body { padding: 0 20px 20px; }
+
+.type-name {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--accent-deep);
+  margin-bottom: 12px;
+}
+ul.type-traits { list-style: none; margin: 0; padding: 0; }
+ul.type-traits li {
+  position: relative;
+  padding: 10px 0 10px 18px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+ul.type-traits li:first-child { border-top: none; }
+ul.type-traits li::before {
+  content: '';
+  position: absolute;
+  left: 2px; top: 1.25em;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+ul.type-traits li:last-child { color: var(--ink-soft); font-size: 14px; }
+ul.type-traits li:last-child::before { background: var(--line); }
+
+.deep-h {
+  margin-top: 18px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  color: var(--muted);
+}
+ul.type-adds { list-style: none; margin: 8px 0 0; padding: 0; }
+ul.type-adds li {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  padding: 5px 0;
+}
+
+.match-card {
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.match-card:first-child { border-top: none; padding-top: 4px; }
+.ma-label { font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: .03em; }
+.ma-name { font-size: 20px; font-weight: 800; margin-top: 4px; }
+.ma-area {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 2px 9px;
+  vertical-align: middle;
+}
+.ma-why { font-size: 14.5px; color: var(--ink-soft); margin-top: 7px; line-height: 1.6; }
+.ma-note { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.55; }
+
 details.rest { margin-top: 22px; }
 details.rest > summary {
   cursor: pointer;

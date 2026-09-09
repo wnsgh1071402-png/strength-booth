@@ -1,6 +1,6 @@
 // 수검자용 앱 — 영역 선택 → 24문항 → 결과
 
-import { AREAS, SCALE, getArea, getStrength, BOOTH_NAME } from './data.js';
+import { AREAS, SCALE, getArea, getStrength, findStrength, BOOTH_NAME } from './data.js';
 import { buildQuestions, buildRecord, rankStrengths, MAX_SCORE } from './scoring.js';
 import { submitResult, initStore } from './store.js';
 
@@ -182,72 +182,242 @@ function renderResult(record) {
       <span class="sc">${r.score} / ${MAX_SCORE}</span>
     </div>`;
   }).join('');
+
+  renderInterpret(record, topIds);
+  renderMatch(record, topIds[0]);
+}
+
+/** 1위 강점을 주 유형으로 보고 특징을 펼친다 */
+function renderInterpret(record, topIds) {
+  const main = getStrength(record.areaId, topIds[0]);
+  const others = topIds.slice(1).map((id) => {
+    const s = getStrength(record.areaId, id);
+    return `<li><b>${s.emoji} ${s.name}</b> ${s.interpret.adds}</li>`;
+  }).join('');
+
+  $('result-interpret').innerHTML = `
+    <details class="deep" open>
+      <summary>내 유형 자세히 보기</summary>
+      <div class="deep-body">
+        <p class="type-name">${main.emoji} ${main.name} 유형</p>
+        <ul class="type-traits">${main.interpret.traits.map((t) => `<li>${t}</li>`).join('')}</ul>
+        <p class="deep-h">함께 나온 강점이 더하는 것</p>
+        <ul class="type-adds">${others}</ul>
+      </div>
+    </details>`;
+}
+
+/** 잘 맞는 유형 — 근거의 성격이 다르므로 화면에서도 구분해 표시한다 */
+function renderMatch(record, topId) {
+  const main = getStrength(record.areaId, topId);
+  const m = main.interpret.match;
+
+  const card = (label, id, why, note) => {
+    const found = findStrength(id);
+    if (!found) return '';
+    const cross = found.area.id !== record.areaId ? `<span class="ma-area">${found.area.name}</span>` : '';
+    return `<div class="match-card">
+      <p class="ma-label">${label}</p>
+      <p class="ma-name">${found.strength.emoji} ${found.strength.name} ${cross}</p>
+      <p class="ma-why">${why}</p>
+      <p class="ma-note">${note}</p>
+    </div>`;
+  };
+
+  $('result-match').innerHTML = `
+    <details class="deep">
+      <summary>나와 잘 맞는 유형 (재미로 보기)</summary>
+      <div class="deep-body">
+        ${card('잘 통하는 친구', m.friend, m.friendWhy,
+               'VIA 연구에서 함께 나타나는 경향이 큰 강점입니다.')}
+        ${card('서로 채워주는 짝', m.partner, m.partnerWhy,
+               '검증된 궁합 결과가 아니라, 강점이 지나칠 때를 보완하는 조합으로 골랐습니다.')}
+      </div>
+    </details>`;
 }
 
 // ── 결과 이미지 저장 (외부 라이브러리 없이 canvas로 직접 그림) ──
 
+/**
+ * 결과 이미지 생성 — 화면에 보이는 내용을 전부 담는다.
+ * 내용 길이에 따라 높이가 달라지므로 같은 그리기 코드를 두 번 돌린다.
+ * 1회차(dry)는 좌표만 계산해 전체 높이를 구하고, 2회차에 실제로 그린다.
+ */
 function drawResultImage(record) {
+  const W = 1080;
+  const PAD = 70;
+  const INNER = 38;
+  const TW = W - (PAD + INNER) * 2;
+
   const area = getArea(record.areaId);
-  const W = 1080, H = 1120;
-  const cv = document.createElement('canvas');
-  cv.width = W; cv.height = H;
-  const c = cv.getContext('2d');
+  const top = record.top3.map((id) => getStrength(record.areaId, id));
+  const main = top[0];
+  const m = main.interpret.match;
+
   const font = (size, weight = 400) =>
     `${weight} ${size}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`;
 
-  c.fillStyle = '#FFFBF3';
-  c.fillRect(0, 0, W, H);
+  const measure = document.createElement('canvas').getContext('2d');
+  const height = paint(measure, true);
 
-  c.fillStyle = '#F2A93B';
-  c.fillRect(0, 0, W, 14);
-
-  c.textAlign = 'center';
-  c.fillStyle = '#D4831A';
-  c.font = font(34, 700);
-  c.fillText('✨ ' + BOOTH_NAME, W / 2, 120);
-
-  c.fillStyle = '#2B2620';
-  c.font = font(64, 800);
-  c.fillText('나의 강점 TOP 3', W / 2, 210);
-
-  c.fillStyle = '#8B8278';
-  c.font = font(30, 400);
-  c.fillText(area.emoji + ' ' + area.name, W / 2, 265);
-
-  let y = 340;
-  record.top3.forEach((id, i) => {
-    const s = getStrength(record.areaId, id);
-
-    c.fillStyle = '#FFFFFF';
-    roundRect(c, 70, y, W - 140, 205, 28);
-    c.fill();
-    c.strokeStyle = i === 0 ? '#F2A93B' : '#EFE4D2';
-    c.lineWidth = i === 0 ? 4 : 2;
-    roundRect(c, 70, y, W - 140, 205, 28);
-    c.stroke();
-
-    c.textAlign = 'left';
-    c.fillStyle = '#D4831A';
-    c.font = font(26, 800);
-    c.fillText(`TOP ${i + 1}`, 110, y + 58);
-
-    c.fillStyle = '#2B2620';
-    c.font = font(46, 800);
-    c.fillText(`${s.emoji} ${s.name}`, 110, y + 120);
-
-    c.fillStyle = '#5C5349';
-    c.font = font(28, 400);
-    wrapText(c, s.short, 110, y + 168, W - 220, 40);
-
-    y += 235;
-  });
-
-  c.textAlign = 'center';
-  c.fillStyle = '#8B8278';
-  c.font = font(24, 400);
-  c.fillText('VIA 성격강점 분류를 참고한 부스 활동입니다', W / 2, H - 45);
-
+  const cv = document.createElement('canvas');
+  cv.width = W;
+  cv.height = height;
+  paint(cv.getContext('2d'), false);
   return cv;
+
+  function paint(c, dry) {
+    if (!dry) {
+      c.fillStyle = '#FFFBF3';
+      c.fillRect(0, 0, W, height);
+      c.fillStyle = '#F2A93B';
+      c.fillRect(0, 0, W, 14);
+    }
+
+    // ── 머리말 ──
+    c.textAlign = 'center';
+    let y = 96;
+    y = line(c, dry, '✨ ' + BOOTH_NAME, W / 2, y, 32, 700, '#D4831A');
+    y = line(c, dry, '나의 강점 TOP 3', W / 2, y + 80, 58, 800, '#2B2620');
+    y = line(c, dry, area.emoji + ' ' + area.name, W / 2, y + 44, 28, 400, '#8B8278');
+    c.textAlign = 'left';
+    y += 54;
+
+    // ── 강점 카드 3장 ──
+    top.forEach((s, i) => {
+      const start = y;
+      let ty = y + INNER + 26;
+      ty = line(c, dry, `TOP ${i + 1}`, PAD + INNER, ty, 24, 800, '#D4831A');
+      ty = line(c, dry, `${s.emoji} ${s.name}`, PAD + INNER, ty + 54, 44, 800, '#2B2620');
+      ty = line(c, dry, s.via, PAD + INNER, ty + 32, 23, 400, '#8B8278');
+      ty = block(c, dry, s.result, PAD + INNER, ty + 44, 27, TW, 42, '#5C5349');
+
+      // 살리는 법 상자
+      const aLines = wrapLines(c, font(25), '살리는 법 · ' + s.action, TW - 36);
+      const boxH = aLines.length * 38 + 34;
+      if (!dry) {
+        c.fillStyle = '#FFF3DE';
+        roundRect(c, PAD + INNER, ty + 16, TW, boxH, 12);
+        c.fill();
+      }
+      let ay = ty + 16 + 34;
+      aLines.forEach((t) => {
+        if (!dry) { c.font = font(25); c.fillStyle = '#7A4A08'; c.fillText(t, PAD + INNER + 18, ay); }
+        ay += 38;
+      });
+      ty = ty + 16 + boxH;
+
+      const cardH = ty + INNER - start;
+      if (!dry) {
+        c.fillStyle = '#FFFFFF';
+        roundRect(c, PAD, start, W - PAD * 2, cardH, 26);
+        c.fill();
+        c.strokeStyle = i === 0 ? '#F2A93B' : '#EFE4D2';
+        c.lineWidth = i === 0 ? 4 : 2;
+        roundRect(c, PAD, start, W - PAD * 2, cardH, 26);
+        c.stroke();
+        // 카드 배경이 글자를 덮었으므로 같은 자리에 다시 그린다
+        paintCardText(c, s, i, start);
+      }
+      y = start + cardH + 22;
+    });
+
+    // ── 내 유형 ──
+    y += 26;
+    y = line(c, dry, '내 유형', PAD, y, 22, 800, '#D4831A');
+    y = line(c, dry, `${main.emoji} ${main.name} 유형`, PAD, y + 50, 40, 800, '#2B2620');
+    y += 20;
+    main.interpret.traits.forEach((t) => {
+      if (!dry) { c.fillStyle = '#F2A93B'; c.beginPath(); c.arc(PAD + 7, y + 12, 6, 0, Math.PI * 2); c.fill(); }
+      y = block(c, dry, t, PAD + 28, y + 22, 26, W - PAD * 2 - 28, 40, '#2B2620') + 18;
+    });
+
+    y += 34;
+    y = line(c, dry, '함께 나온 강점이 더하는 것', PAD, y, 22, 800, '#8B8278');
+    y += 18;
+    top.slice(1).forEach((s) => {
+      y = block(c, dry, `${s.emoji} ${s.name} — ${s.interpret.adds}`, PAD, y + 26, 25, W - PAD * 2, 38, '#5C5349') + 12;
+    });
+
+    // ── 잘 맞는 유형 ──
+    y += 54;
+    y = line(c, dry, '나와 잘 맞는 유형 (재미로 보기)', PAD, y, 22, 800, '#D4831A');
+    y += 14;
+    y = matchRow(c, dry, y, '잘 통하는 친구', m.friend, m.friendWhy);
+    y = matchRow(c, dry, y, '서로 채워주는 짝', m.partner, m.partnerWhy);
+    y = block(c, dry, '※ 검증된 궁합 결과가 아니라 강점 조합으로 만든 참고용입니다.',
+              PAD, y + 40, 21, W - PAD * 2, 32, '#8B8278');
+
+    // ── 꼬리말 ──
+    y += 60;
+    c.textAlign = 'center';
+    y = line(c, dry, 'VIA 성격강점 분류를 참고한 부스 활동입니다', W / 2, y, 23, 400, '#8B8278');
+    c.textAlign = 'left';
+    return y + 50;
+  }
+
+  // 카드 배경을 칠한 뒤 글자를 다시 얹는다
+  function paintCardText(c, s, i, start) {
+    let ty = start + INNER + 26;
+    ty = line(c, false, `TOP ${i + 1}`, PAD + INNER, ty, 24, 800, '#D4831A');
+    ty = line(c, false, `${s.emoji} ${s.name}`, PAD + INNER, ty + 54, 44, 800, '#2B2620');
+    ty = line(c, false, s.via, PAD + INNER, ty + 32, 23, 400, '#8B8278');
+    ty = block(c, false, s.result, PAD + INNER, ty + 44, 27, TW, 42, '#5C5349');
+
+    const aLines = wrapLines(c, font(25), '살리는 법 · ' + s.action, TW - 36);
+    const boxH = aLines.length * 38 + 34;
+    c.fillStyle = '#FFF3DE';
+    roundRect(c, PAD + INNER, ty + 16, TW, boxH, 12);
+    c.fill();
+    let ay = ty + 16 + 34;
+    aLines.forEach((t) => {
+      c.font = font(25);
+      c.fillStyle = '#7A4A08';
+      c.fillText(t, PAD + INNER + 18, ay);
+      ay += 38;
+    });
+  }
+
+  function matchRow(c, dry, y, label, id, why) {
+    const found = findStrength(id);
+    if (!found) return y;
+    const cross = found.area.id !== record.areaId ? ` (${found.area.name})` : '';
+    y = line(c, dry, label, PAD, y + 40, 21, 800, '#8B8278');
+    y = line(c, dry, `${found.strength.emoji} ${found.strength.name}${cross}`, PAD, y + 40, 30, 800, '#2B2620');
+    return block(c, dry, why, PAD, y + 34, 24, W - PAD * 2, 36, '#5C5349');
+  }
+
+  /** 한 줄 그리기 — 그린 뒤의 y를 돌려준다 */
+  function line(c, dry, text, x, y, size, weight, color) {
+    if (!dry) { c.font = font(size, weight); c.fillStyle = color; c.fillText(text, x, y); }
+    return y;
+  }
+
+  /** 여러 줄로 감싸 그리기 — 마지막 줄의 y를 돌려준다 */
+  function block(c, dry, text, x, y, size, width, lh, color) {
+    const ls = wrapLines(c, font(size), text, width);
+    ls.forEach((t, i) => {
+      if (!dry) { c.font = font(size); c.fillStyle = color; c.fillText(t, x, y + i * lh); }
+    });
+    return y + (ls.length - 1) * lh;
+  }
+}
+
+/** 글자 단위로 감싸 줄 배열을 만든다 (한국어는 단어 경계가 넓어 글자 기준이 안전) */
+function wrapLines(c, fontSpec, text, maxWidth) {
+  c.font = fontSpec;
+  const out = [];
+  let cur = '';
+  for (const ch of text) {
+    if (c.measureText(cur + ch).width > maxWidth && cur) {
+      out.push(cur);
+      cur = ch === ' ' ? '' : ch;
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur) out.push(cur);
+  return out;
 }
 
 function roundRect(c, x, y, w, h, r) {
@@ -258,20 +428,6 @@ function roundRect(c, x, y, w, h, r) {
   c.arcTo(x, y + h, x, y, r);
   c.arcTo(x, y, x + w, y, r);
   c.closePath();
-}
-
-function wrapText(c, text, x, y, maxWidth, lineHeight) {
-  let line = '';
-  for (const ch of text) {
-    if (c.measureText(line + ch).width > maxWidth && line) {
-      c.fillText(line, x, y);
-      line = ch;
-      y += lineHeight;
-    } else {
-      line += ch;
-    }
-  }
-  c.fillText(line, x, y);
 }
 
 function saveImage() {
