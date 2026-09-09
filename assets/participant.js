@@ -212,13 +212,13 @@ function renderMatch(record, topId) {
   const main = getStrength(record.areaId, topId);
   const m = main.interpret.match;
 
+  // 궁합은 같은 영역 6개 안에서만 고른다. 같은 검사를 한 친구끼리 바로 맞춰볼 수 있어야 한다.
   const card = (label, id, why, note) => {
-    const found = findStrength(id);
-    if (!found) return '';
-    const cross = found.area.id !== record.areaId ? `<span class="ma-area">${found.area.name}</span>` : '';
+    const s = getStrength(record.areaId, id);
+    if (!s) return '';
     return `<div class="match-card">
       <p class="ma-label">${label}</p>
-      <p class="ma-name">${found.strength.emoji} ${found.strength.name} ${cross}</p>
+      <p class="ma-name">${s.emoji} ${s.name}</p>
       <p class="ma-why">${why}</p>
       <p class="ma-note">${note}</p>
     </div>`;
@@ -228,8 +228,9 @@ function renderMatch(record, topId) {
     <details class="deep">
       <summary>나와 잘 맞는 유형 (재미로 보기)</summary>
       <div class="deep-body">
+        <p class="ma-intro">같은 검사를 한 친구와 맞춰보세요. ${getArea(record.areaId).name}의 강점 6가지 중에서 골랐습니다.</p>
         ${card('잘 통하는 친구', m.friend, m.friendWhy,
-               'VIA 연구에서 함께 나타나는 경향이 큰 강점입니다.')}
+               'VIA 연구에서 함께 나타나는 경향을 참고해 골랐습니다.')}
         ${card('서로 채워주는 짝', m.partner, m.partnerWhy,
                '검증된 궁합 결과가 아니라, 강점이 지나칠 때를 보완하는 조합으로 골랐습니다.')}
       </div>
@@ -379,11 +380,10 @@ function drawResultImage(record) {
   }
 
   function matchRow(c, dry, y, label, id, why) {
-    const found = findStrength(id);
-    if (!found) return y;
-    const cross = found.area.id !== record.areaId ? ` (${found.area.name})` : '';
+    const s = getStrength(record.areaId, id);
+    if (!s) return y;
     y = line(c, dry, label, PAD, y + 40, 21, 800, '#8B8278');
-    y = line(c, dry, `${found.strength.emoji} ${found.strength.name}${cross}`, PAD, y + 40, 30, 800, '#2B2620');
+    y = line(c, dry, `${s.emoji} ${s.name}`, PAD, y + 40, 30, 800, '#2B2620');
     return block(c, dry, why, PAD, y + 34, 24, W - PAD * 2, 36, '#5C5349');
   }
 

@@ -43,10 +43,10 @@ export const AREAS = [
           ],
           adds: '따뜻하게 챙기는 결이 더해집니다.',
           match: {
-            friend: 'gratitude',
-            friendWhy: '주는 마음을 알아봐 주는 사람이라, 챙기는 게 헛돌지 않습니다.',
-            partner: 'honesty',
-            partnerWhy: '돌려 말하지 않는 사람이라, 혼자 떠안기 전에 서로 솔직해질 수 있습니다.'
+            friend: 'teamwork',
+            friendWhy: '챙기는 마음과 팀을 굴리는 힘이 만나 주변이 편안해집니다.',
+            partner: 'fairness',
+            partnerWhy: '기준이 분명한 사람이 옆에 있으면 챙기다 자기 몫을 잃지 않습니다.'
           },
           core: 'VIA에서 친절은 대가를 바라지 않고 남을 돕고 공감하는 성향입니다. 성격이 순하다는 뜻이 아니라, 돕는 행동이 실제로 얼마나 나타나는지를 봅니다.',
           optimal: '먼저 알아차리고 움직이며, 돕는 것 자체에서 힘을 얻습니다.',
@@ -80,8 +80,8 @@ export const AREAS = [
           ],
           adds: '분위기를 읽으며 조율하는 결이 더해집니다.',
           match: {
-            friend: 'perspective',
-            friendWhy: '둘 다 상황을 읽는 편이라 말을 길게 안 해도 통합니다.',
+            friend: 'leadership',
+            friendWhy: '분위기를 읽는 눈과 방향을 잡는 힘이 잘 맞물립니다.',
             partner: 'humor',
             partnerWhy: '많은 게 보여 무거워질 때 가볍게 풀어줍니다.'
           },
@@ -117,10 +117,10 @@ export const AREAS = [
           ],
           adds: '밀어붙이기보다 같이 가는 쪽을 택하게 합니다.',
           match: {
-            friend: 'leadership',
-            friendWhy: '한 명은 방향을 잡고 한 명은 굴러가게 만들어 팀이 잘 돌아갑니다.',
-            partner: 'bravery',
-            partnerWhy: '묻히기 쉬울 때 자기 목소리를 내라고 밀어줍니다.'
+            friend: 'kindness',
+            friendWhy: '팀을 챙기는 결이 닮아 같이 있으면 분위기가 좋습니다.',
+            partner: 'leadership',
+            partnerWhy: '한 명이 방향을 잡아주면 묻히지 않고 제 몫이 드러납니다.'
           },
           core: 'VIA에서 협동심은 집단의 목표를 위해 제 몫을 하고 책임을 나누는 성향입니다. 순응이나 양보와 달리, 팀에 기여하는 능동성을 봅니다.',
           optimal: '자기 역할을 해내면서 팀이 굴러가게 만듭니다.',
@@ -191,8 +191,8 @@ export const AREAS = [
           ],
           adds: '한쪽으로 기울지 않는 결이 더해집니다.',
           match: {
-            friend: 'leadership',
-            friendWhy: '옳은 방향으로 판을 만드는 조합입니다.',
+            friend: 'teamwork',
+            friendWhy: '원칙과 협력이 만나 팀이 억울할 일 없이 굴러갑니다.',
             partner: 'humor',
             partnerWhy: '원칙에 갇혀 딱딱해질 때 공기를 풀어줍니다.'
           },
@@ -230,8 +230,8 @@ export const AREAS = [
           match: {
             friend: 'socialIntel',
             friendWhy: '분위기를 읽고 바꾸는 걸 둘 다 할 줄 압니다.',
-            partner: 'prudence',
-            partnerWhy: '장난이 선을 넘기 전에 짚어줍니다.'
+            partner: 'fairness',
+            partnerWhy: '장난이 선을 넘기 전에 기준을 짚어줍니다.'
           },
           core: 'VIA에서 유머는 삶을 놀이처럼 대하고 어려운 상황에서도 가벼운 면을 찾아내는 성향입니다. 재미있는 사람이라는 뜻보다 긴장을 다루는 방식에 가깝습니다.',
           optimal: '분위기를 풀고 사람들을 이어 주며 힘든 순간을 견디게 합니다.',
@@ -274,8 +274,8 @@ export const AREAS = [
           ],
           adds: '새로운 쪽으로 자꾸 뻗어나가게 합니다.',
           match: {
-            friend: 'zest',
-            friendWhy: '궁금한 걸 바로 해보는 쪽이라 같이 있으면 일이 벌어집니다.',
+            friend: 'loveOfLearning',
+            friendWhy: '궁금해하고 파고드는 결이 같아 이야기가 끝나지 않습니다.',
             partner: 'perseverance',
             partnerWhy: '여기저기 뻗을 때 하나를 끝까지 붙잡게 해줍니다.'
           },
@@ -312,9 +312,9 @@ export const AREAS = [
           adds: '한 분야를 깊게 파고드는 결이 더해집니다.',
           match: {
             friend: 'curiosity',
-            friendWhy: '아는 걸 늘리는 재미를 같이 느낍니다.',
-            partner: 'humility',
-            partnerWhy: '아는 것을 앞세우지 않게 잡아줍니다.'
+            friendWhy: '"이건 뭐지"와 "더 알고 싶다"가 만나 계속 깊어집니다.',
+            partner: 'perspective',
+            partnerWhy: '아는 것을 앞세우지 않고 상대 눈높이에서 말하게 해줍니다.'
           },
           core: 'VIA에서 학구열은 지식이나 기술을 새로 쌓고 깊이 파고드는 동기입니다. 성적과 직접 연결되는 개념이 아니며, 배우는 것 자체에서 오는 즐거움을 봅니다.',
           optimal: '한 분야를 깊게 파고들며 계속 배웁니다.',
@@ -349,7 +349,7 @@ export const AREAS = [
           adds: '틀에서 벗어난 방법을 찾게 합니다.',
           match: {
             friend: 'curiosity',
-            friendWhy: '"이건 뭐지"와 "이렇게 해볼까"가 만나 계속 새로운 게 나옵니다.',
+            friendWhy: '새로운 걸 찾는 힘과 새로 만드는 힘이 만나 뭐든 벌어집니다.',
             partner: 'perseverance',
             partnerWhy: '흩어진 아이디어를 끝까지 끌고 가 마무리해줍니다.'
           },
@@ -387,8 +387,8 @@ export const AREAS = [
           match: {
             friend: 'perspective',
             friendWhy: '따져보는 눈과 넓게 보는 눈이 만나 판단이 단단해집니다.',
-            partner: 'bravery',
-            partnerWhy: '재기만 하다 멈출 때 일단 해보자고 밀어줍니다.'
+            partner: 'creativity',
+            partnerWhy: '재다가 막혔을 때 다른 방법을 떠올려줍니다.'
           },
           core: 'VIA에서 판단력은 자기 신념과 어긋나는 근거까지 포함해 여러 면을 객관적으로 저울질하는 능력입니다. 비판적인 성격이 아니라 결론을 내리기 전 검토하는 태도를 봅니다.',
           optimal: '여러 각도를 열어 두고 근거로 판단합니다.',
@@ -422,10 +422,10 @@ export const AREAS = [
           ],
           adds: '상황을 넓게 보는 결이 더해집니다.',
           match: {
-            friend: 'socialIntel',
-            friendWhy: '사람과 상황을 읽는 결이 비슷해 대화가 깊어집니다.',
-            partner: 'humility',
-            partnerWhy: '조언이 가르침이 되지 않게 눈높이를 맞춰줍니다.'
+            friend: 'judgment',
+            friendWhy: '근거를 확인하고 전체를 보는 방식이 잘 맞습니다.',
+            partner: 'curiosity',
+            partnerWhy: '아직 모르는 게 있다는 자세를 곁에서 상기시켜 줍니다.'
           },
           core: 'VIA에서 통찰은 여러 관점과 자기 경험을 엮어 큰 그림을 보여 주는 능력입니다. 지능이 아니라 남에게 도움이 되는 조언으로 이어지는 지혜를 봅니다.',
           optimal: '한발 떨어져 전체를 보고 관점을 통합합니다.',
@@ -459,8 +459,8 @@ export const AREAS = [
           ],
           adds: '한번 잡으면 끝을 보게 만듭니다.',
           match: {
-            friend: 'selfRegulation',
-            friendWhy: '해야 할 걸 해내는 결이 같아 같이 있으면 진도가 나갑니다.',
+            friend: 'loveOfLearning',
+            friendWhy: '오래 붙잡고 깊게 가는 결이 닮았습니다.',
             partner: 'judgment',
             partnerWhy: '놓아야 할 때를 대신 봐줍니다.'
           },
@@ -505,8 +505,8 @@ export const AREAS = [
           ],
           adds: '필요할 때 먼저 움직이게 합니다.',
           match: {
-            friend: 'perspective',
-            friendWhy: '나설 때와 아닐 때를 같이 가늠할 수 있습니다.',
+            friend: 'honesty',
+            friendWhy: '할 말을 하는 결이 같아 서로 눈치 보지 않습니다.',
             partner: 'prudence',
             partnerWhy: '뛰어들기 전에 한 번 잡아주는 브레이크가 됩니다.'
           },
@@ -580,8 +580,8 @@ export const AREAS = [
           adds: '앞을 보고 가게 하는 결이 더해집니다.',
           match: {
             friend: 'zest',
-            friendWhy: '기대가 행동으로 이어지는 조합입니다.',
-            partner: 'judgment',
+            friendWhy: '잘될 거란 믿음이 행동으로 이어지는 조합입니다.',
+            partner: 'prudence',
             partnerWhy: '기대가 현실에서 뜨지 않게 붙잡아줍니다.'
           },
           core: 'VIA에서 낙관성은 현실을 보면서도 미래가 나아지리라 기대하고 그에 맞게 행동하는 태도입니다. 무조건적인 긍정이 아니라 현실감이 함께 있는지를 봅니다.',
@@ -616,10 +616,10 @@ export const AREAS = [
           ],
           adds: '흐트러지지 않게 잡아주는 결이 더해집니다.',
           match: {
-            friend: 'perseverance',
-            friendWhy: '조이고 버티는 결이 같아 서로를 이해합니다.',
-            partner: 'humor',
-            partnerWhy: '너무 조일 때 웃으며 풀어줍니다.'
+            friend: 'hope',
+            friendWhy: '지금을 참고 앞을 보는 결이 닮았습니다.',
+            partner: 'zest',
+            partnerWhy: '너무 조일 때 힘을 빼고 즐기게 해줍니다.'
           },
           core: 'VIA에서 자기조절은 감정과 행동을 스스로 관리하는 능력입니다. 참는 것과 달리, 원하는 방향으로 자신을 이끄는 힘을 봅니다.',
           optimal: '충동을 알아차리고 목표에 맞게 조절합니다.',
@@ -653,10 +653,10 @@ export const AREAS = [
           ],
           adds: '꾸미지 않는 결이 더해집니다.',
           match: {
-            friend: 'perseverance',
-            friendWhy: '말과 행동이 일치하는 걸 둘 다 중요하게 여깁니다.',
-            partner: 'kindness',
-            partnerWhy: '솔직한 말이 상처가 되지 않게 온도를 더해줍니다.'
+            friend: 'bravery',
+            friendWhy: '떨려도 할 말은 하는 방식이 서로 통합니다.',
+            partner: 'prudence',
+            partnerWhy: '솔직한 말이 거칠어지지 않게 한 번 정리해줍니다.'
           },
           core: 'VIA에서 진실성은 자신과 타인에게 정직하고 자기 행동에 책임지는 것입니다. 직설적인 성격이 아니라 겉과 속이 일치하는지를 봅니다.',
           optimal: '꾸미지 않고 자기 자신으로 있으며 책임을 집니다.',
@@ -690,8 +690,8 @@ export const AREAS = [
           ],
           adds: '한 박자 늦춰 안전하게 가게 합니다.',
           match: {
-            friend: 'judgment',
-            friendWhy: '재보고 따져보는 방식이 잘 맞습니다.',
+            friend: 'honesty',
+            friendWhy: '겉과 속이 같고 재보고 가는 결이 잘 맞습니다.',
             partner: 'bravery',
             partnerWhy: '너무 재다 놓칠 때 등을 밀어줍니다.'
           },
@@ -738,8 +738,8 @@ export const AREAS = [
           match: {
             friend: 'gratitude',
             friendWhy: '주고받는 걸 둘 다 알아차려서 관계가 오래갑니다.',
-            partner: 'perspective',
-            partnerWhy: '감정에 파묻힐 때 한발 떨어져 보게 해줍니다.'
+            partner: 'values',
+            partnerWhy: '감정에 파묻힐 때 자기 기준으로 거리를 잡아줍니다.'
           },
           core: 'VIA에서 사랑은 주고받는 가까운 관계를 경험하는 능력입니다. 애정 표현의 양이 아니라 깊은 관계를 맺고 유지하는 힘을 봅니다.',
           optimal: '진심이 오가는 관계를 만들고 이어갑니다.',
@@ -773,10 +773,10 @@ export const AREAS = [
           ],
           adds: '오래 끌지 않고 정리하게 합니다.',
           match: {
-            friend: 'fairness',
-            friendWhy: '풀어주되 선은 지키는 균형이 맞습니다.',
-            partner: 'honesty',
-            partnerWhy: '넘어가주기만 하지 않도록 할 말은 하게 해줍니다.'
+            friend: 'humility',
+            friendWhy: '앞세우지 않고 담아두지 않는 결이 닮았습니다.',
+            partner: 'values',
+            partnerWhy: '넘어가주기만 하지 않도록 선을 어디에 둘지 알려줍니다.'
           },
           core: 'VIA에서 용서는 상처를 받았을 때 그것을 놓아주고 다시 기회를 주는 능력입니다. 참거나 없던 일로 하는 것과 달리, 겪은 일을 앞으로의 관계에 반영하는 것까지 포함합니다.',
           optimal: '상처를 붙들지 않고 두 번째 기회를 줍니다.',
@@ -810,10 +810,10 @@ export const AREAS = [
           ],
           adds: '앞세우지 않는 결이 더해집니다.',
           match: {
-            friend: 'prudence',
-            friendWhy: '앞세우지 않고 신중한 결이 닮았습니다.',
-            partner: 'zest',
-            partnerWhy: '자기 몫을 드러내도 된다고 밀어줍니다.'
+            friend: 'gratitude',
+            friendWhy: '자기를 낮추고 주변을 알아보는 방식이 서로 편합니다.',
+            partner: 'love',
+            partnerWhy: '아껴주는 사람이 곁에 있으면 자기 몫도 인정하게 됩니다.'
           },
           core: 'VIA에서 겸손은 자기 강점과 한계를 있는 그대로 보면서 주목받으려 애쓰지 않는 태도입니다. 자신을 낮추는 것이 아니라 정확하게 보는 것이며, 자기비하와는 다릅니다.',
           optimal: '자기를 정확히 보고 관심을 남에게 돌립니다.',
@@ -884,10 +884,10 @@ export const AREAS = [
           ],
           adds: '주변을 알아보는 결이 더해집니다.',
           match: {
-            friend: 'kindness',
-            friendWhy: '주고 알아보는 결이 맞아 서로 편합니다.',
-            partner: 'honesty',
-            partnerWhy: '표현이 형식이 되지 않게 담백하게 해줍니다.'
+            friend: 'love',
+            friendWhy: '마음을 주고 알아보는 결이 맞아 서로 편합니다.',
+            partner: 'humility',
+            partnerWhy: '표현이 과해지지 않게 담백하게 잡아줍니다.'
           },
           core: 'VIA에서 감사는 받은 것을 알아차리고 그것을 표현하는 태도입니다. 예의 바름과 달리, 좋은 것을 인식하는 습관 자체를 봅니다.',
           optimal: '받은 것을 알아보고 말로 표현합니다.',
@@ -922,9 +922,9 @@ export const AREAS = [
           adds: '기준을 갖고 선택하게 합니다.',
           match: {
             friend: 'gratitude',
-            friendWhy: '중요한 걸 아는 사람끼리라 대화가 깊습니다.',
-            partner: 'judgment',
-            partnerWhy: '내 기준만 옳다고 굳지 않게 다른 관점을 보여줍니다.'
+            friendWhy: '중요한 걸 아는 사람끼리라 대화가 깊어집니다.',
+            partner: 'humility',
+            partnerWhy: '내 기준만 옳다고 굳지 않게 다른 자리를 보여줍니다.'
           },
           core: 'VIA의 영성은 삶의 의미와 목적을 찾고 자기보다 큰 무언가와 연결되는 감각입니다. 종교와 같은 말이 아니며, 이 검사에서는 청소년 맥락에 맞춰 "나만의 기준과 의미"로 다룹니다.',
           optimal: '무엇이 중요한지 알고 그 기준대로 살아갑니다.',

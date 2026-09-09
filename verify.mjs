@@ -25,8 +25,11 @@ for (const a of AREAS) {
     const mt = it?.match;
     ok(!!mt, `${a.name}/${s.name}: match 누락`);
     if (mt) {
-      ok(!!findStrength(mt.friend), `${a.name}/${s.name}: match.friend '${mt.friend}' 없음`);
-      ok(!!findStrength(mt.partner), `${a.name}/${s.name}: match.partner '${mt.partner}' 없음`);
+      // 궁합은 반드시 같은 영역 6개 안에서 골라야 한다.
+      // 다른 영역을 가리키면 같은 검사를 한 친구끼리 맞춰볼 수 없다.
+      const ids6 = a.strengths.map((x) => x.id);
+      ok(ids6.includes(mt.friend), `${a.name}/${s.name}: match.friend '${mt.friend}'가 이 영역 밖`);
+      ok(ids6.includes(mt.partner), `${a.name}/${s.name}: match.partner '${mt.partner}'가 이 영역 밖`);
       ok(mt.friend !== s.id && mt.partner !== s.id, `${a.name}/${s.name}: 자기 자신과 매칭됨`);
       ok(mt.friend !== mt.partner, `${a.name}/${s.name}: friend와 partner가 같음`);
       ok(mt.friendWhy?.length > 0 && mt.partnerWhy?.length > 0, `${a.name}/${s.name}: 궁합 설명 누락`);
