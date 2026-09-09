@@ -216,16 +216,33 @@ function renderPerson() {
              `${sameArea ? '' : ` <em>${found.area.name}</em>`}${alsoTop ? ' · 이 학생도 상위' : ''}</span>`;
     }).filter(Boolean).join('');
 
+    // 1위는 주 유형으로 특징을 펼치고, 2·3위는 그 유형에 더해지는 결로 붙인다
+    const others = i !== 0 ? '' : top.slice(1).map((oid) => {
+      const os = getStrength(row.areaId, oid);
+      const orank = ranked.findIndex((r) => r.id === oid) + 1;
+      return `<li>
+        <span class="on-name">${os.emoji} ${os.name}</span>
+        <span class="on-sc">${row.scores[oid]}점 · ${orank}위</span>
+        <span class="on-add">${os.interpret.adds}</span>
+      </li>`;
+    }).join('');
+
     return `
-      <div class="guide-card">
-        <span class="tag">TOP ${i + 1}</span>
-        <h3>${s.emoji} ${s.name}</h3>
+      <div class="guide-card ${i === 0 ? 'main' : ''}">
+        <span class="tag">${i === 0 ? '주 유형' : `TOP ${i + 1}`}</span>
+        <h3>${s.emoji} ${s.name}${i === 0 ? ' 유형' : ''}</h3>
         <div class="sc-line">${s.via} · 덕목 ${it.virtue} · ${score} / ${MAX_SCORE}점 · 6개 중 ${rank}위</div>
 
-        <div class="script">
-          <div class="script-h">이렇게 말해주세요</div>
-          ${buildScript(s, rank, answered).map((line) => `<p>${line}</p>`).join('')}
+        <div class="traits">
+          <div class="ih">${i === 0 ? '이 유형의 특징' : '이 강점의 특징'}</div>
+          <ul>${s.interpret.traits.map((t) => `<li>${t}</li>`).join('')}</ul>
         </div>
+
+        ${others ? `
+          <div class="interp">
+            <div class="ih">함께 나온 강점이 더하는 것</div>
+            <ul class="others">${others}</ul>
+          </div>` : ''}
 
         <div class="interp">
           <div class="ih">학생 폰에 뜬 결과 — 같이 보세요</div>
@@ -290,70 +307,17 @@ function renderPerson() {
     <div class="tally">${all}</div>`;
 }
 
-/**
- * 상담자가 학생에게 소리 내어 읽을 대본.
- * 고정 문구가 아니라 이 학생이 실제로 고른 응답을 문장에 끼워 넣는다.
- * 그래야 "네가 이렇게 답했잖아"로 이어지는 말이 된다.
- */
-function buildScript(s, rank, answered) {
-  const name = s.name;
-  const lines = [];
-
-  const opener = rank === 1
-    ? `결과 보니까 6개 중에 "${name}"${subjectParticle(name)} 제일 높게 나왔어요.`
-    : rank === 2
-      ? `그다음으로 높은 건 "${name}"${copula(name)}.`
-      : `"${name}"도 상위로 나왔어요.`;
-
-  if (answered.length) {
-    const hi = answered[0];
-    const lo = answered[answered.length - 1];
-    const hiLabel = labelOf(hi.value);
-    lines.push(`${opener} 특히 ${quoteItem(s.items[hi.itemIndex])}에 '${hiLabel}'${objectParticle(hiLabel)} 골랐더라고요.`);
-    lines.push(s.interpret.say);
-
-    if (hi.value - lo.value >= 2) {
-      const loLabel = labelOf(lo.value);
-      lines.push(
-        `그런데 ${quoteItem(s.items[lo.itemIndex])}에는 '${loLabel}'${objectParticle(loLabel)} 골랐네요. ` +
-        '그럴 수 있어요 — 같은 강점 안에서도 잘 드러나는 면이 있고 아직 아닌 면이 있거든요.'
-      );
-    }
-  } else {
-    lines.push(opener);
-    lines.push(s.interpret.say);
-  }
-
-  lines.push('폰에 뜬 "살리는 법"도 같이 읽어보면 좋아요.');
-  return lines;
-}
-
+/** 5점 척도 값 -> 보기 문구 */
 function labelOf(v) {
   const found = SCALE.find((sc) => sc.value === v);
   return found ? found.label : String(v);
 }
 
-/**
- * 대본에 문항을 끼워 넣는다.
- * 문항 자체에 따옴표가 들어있는 것이 있어서(예: "다 같이" 하는 일이…)
- * 따옴표로 감싸면 겹친다. 밑줄 강조로 구분하고 끝 마침표는 뺀다.
- */
-function quoteItem(text) {
-  return `<em class="qi">${text.replace(/\.$/, '')}</em>`;
-}
-
-/** 주격 조사 이/가 */
-function subjectParticle(word) {
+/** 목적격 조사 — 앞말 받침에 따라 을/를 */
+function objectParticle(word) {
   const code = word.charCodeAt(word.length - 1);
-  if (code < 0xAC00 || code > 0xD7A3) return '이(가)';
-  return (code - 0xAC00) % 28 === 0 ? '가' : '이';
-}
-
-/** 서술격 조사 이에요/예요 */
-function copula(word) {
-  const code = word.charCodeAt(word.length - 1);
-  if (code < 0xAC00 || code > 0xD7A3) return '이에요';
-  return (code - 0xAC00) % 28 === 0 ? '예요' : '이에요';
+  if (code < 0xAC00 || code > 0xD7A3) return '을(를)';
+  return (code - 0xAC00) % 28 === 0 ? '를' : '을';
 }
 
 /**
@@ -373,13 +337,6 @@ function innerPattern(answered, s) {
   return `같은 강점인데 "${s.items[hi.itemIndex]}"에는 높게, ` +
          `"${s.items[lo.itemIndex]}"에는 낮게 답했습니다. ` +
          '강점 안에서도 편차가 있다는 뜻이라, 어느 쪽이 실제 모습에 가까운지 확인해볼 만합니다.';
-}
-
-/** 목적격 조사 — 앞말 받침에 따라 을/를 */
-function objectParticle(word) {
-  const code = word.charCodeAt(word.length - 1);
-  if (code < 0xAC00 || code > 0xD7A3) return '을(를)';
-  return (code - 0xAC00) % 28 === 0 ? '를' : '을';
 }
 
 /**

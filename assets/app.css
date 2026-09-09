@@ -512,36 +512,50 @@ ul.answers .ans.low .v { background: #F1F3F5; color: #9AA0A6; }
 ul.answers .ans .q { color: var(--ink); }
 ul.answers .ans.low .q { color: var(--muted); }
 
-/* 상담자가 읽을 대본 — 화면에서 가장 먼저 눈에 들어와야 한다 */
-.script {
-  margin-top: 16px;
-  padding: 16px 18px 18px;
-  background: var(--accent-soft);
-  border: 1.5px solid var(--accent);
-  border-radius: 14px;
+/* 유형 특징 — 화면에서 가장 먼저 읽히는 부분 */
+.guide-card.main { border-color: var(--accent); box-shadow: var(--shadow); }
+.guide-card.main .tag { background: var(--accent); color: #3B2A08; }
+.guide-card.main h3 { font-size: 22px; }
+
+.traits { margin-top: 16px; }
+.traits ul { margin: 0; padding: 0; list-style: none; }
+.traits li {
+  position: relative;
+  padding: 9px 0 9px 20px;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
 }
-.script-h {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .04em;
-  color: var(--accent-deep);
-  margin-bottom: 10px;
+.traits li:first-child { border-top: none; padding-top: 4px; }
+.traits li::before {
+  content: '';
+  position: absolute;
+  left: 4px; top: 1.05em;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
-.script p {
-  font-size: 16.5px;
-  line-height: 1.75;
-  color: #4A3208;
-  margin-bottom: 9px;
+.traits li:first-child::before { top: .75em; }
+/* 마지막 특징은 "~와 다릅니다" 형태의 구분점이라 톤을 낮춘다 */
+.traits li:last-child { color: var(--ink-soft); font-size: 14.5px; }
+.traits li:last-child::before { background: var(--line); }
+
+/* 2·3위가 주 유형에 더하는 결 */
+ul.others { margin: 0; padding: 0; list-style: none; }
+ul.others li {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 4px 10px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14.5px;
 }
-.script p:last-child { margin-bottom: 0; }
-.script .qi {
-  font-style: normal;
-  font-weight: 700;
-  color: var(--accent-deep);
-  box-shadow: inset 0 -8px 0 rgba(242,169,59,.22);
-}
-.script p:first-of-type::before { content: '“'; }
-.script p:last-of-type::after { content: '”'; }
+ul.others li:first-child { border-top: none; }
+ul.others .on-name { font-weight: 700; }
+ul.others .on-sc { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+ul.others .on-add { grid-column: 1 / -1; color: var(--ink-soft); }
 
 /* 학생 폰에 뜬 문구를 상담자도 같이 본다 */
 .phone-echo {
