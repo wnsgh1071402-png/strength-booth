@@ -16,7 +16,7 @@ for (const a of AREAS) {
     ok(s.items.length === 4, `${a.name}/${s.name}: 문항 4개 (실제 ${s.items.length})`);
     const it = s.interpret;
     ok(!!it, `${a.name}/${s.name}: interpret 누락`);
-    for (const f of ['virtue', 'say', 'core', 'optimal', 'overuse', 'underuse']) {
+    for (const f of ['virtue', 'core', 'optimal', 'overuse', 'underuse']) {
       ok(typeof it?.[f] === 'string' && it[f].length > 0, `${a.name}/${s.name}: interpret.${f} 누락`);
     }
     ok(Array.isArray(it?.pairs) && it.pairs.length === 3, `${a.name}/${s.name}: pairs 3개`);

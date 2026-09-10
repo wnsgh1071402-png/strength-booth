@@ -648,6 +648,15 @@ ul.others .on-name { font-weight: 700; }
 ul.others .on-sc { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 ul.others .on-add { grid-column: 1 / -1; color: var(--ink-soft); }
 
+/* 궁합 — 근거가 약한 내용이라 점수 해석과 시각적으로 구분한다 */
+ul.others.match .on-sc { color: var(--accent-deep); font-weight: 700; }
+.match-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 /* 학생 폰에 뜬 문구를 상담자도 같이 본다 */
 .phone-echo {
   border-left: 3px solid var(--line);

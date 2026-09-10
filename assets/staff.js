@@ -227,6 +227,23 @@ function renderPerson() {
       </li>`;
     }).join('');
 
+    // 궁합은 학생 폰에도 뜨는 내용이라 같이 보며 이야기하려면 여기에도 있어야 한다.
+    // 1위 강점 기준이므로 주 유형 카드에만 붙인다.
+    const mt = it.match;
+    const matchRow = (label, id, why) => {
+      const ms = getStrength(row.areaId, id);
+      if (!ms) return '';
+      const mrank = ranked.findIndex((r) => r.id === id) + 1;
+      return `<li>
+        <span class="on-name">${ms.emoji} ${ms.name}</span>
+        <span class="on-sc">${label} · 이 학생은 ${row.scores[id]}점 ${mrank}위</span>
+        <span class="on-add">${why}</span>
+      </li>`;
+    };
+    const matches = i !== 0 ? '' :
+      matchRow('잘 통하는 친구', mt.friend, mt.friendWhy) +
+      matchRow('서로 채워주는 짝', mt.partner, mt.partnerWhy);
+
     return `
       <div class="guide-card ${i === 0 ? 'main' : ''}">
         <span class="tag">${i === 0 ? '주 유형' : `TOP ${i + 1}`}</span>
@@ -242,6 +259,13 @@ function renderPerson() {
           <div class="interp">
             <div class="ih">함께 나온 강점이 더하는 것</div>
             <ul class="others">${others}</ul>
+          </div>` : ''}
+
+        ${matches ? `
+          <div class="interp">
+            <div class="ih">나와 잘 맞는 유형 — 학생 폰에도 뜹니다</div>
+            <ul class="others match">${matches}</ul>
+            <p class="match-note">검증된 궁합 결과가 아니라 강점 조합으로 만든 참고용입니다. 같은 영역 6개 안에서 골랐습니다.</p>
           </div>` : ''}
 
         <div class="interp">
